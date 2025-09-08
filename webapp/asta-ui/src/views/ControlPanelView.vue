@@ -23,7 +23,7 @@ import { defineComponent } from 'vue';
 import { useToast } from 'primevue/usetoast';
 import Toast from 'primevue/toast';
 import FantasyTeamCard from '@/components/auction/FantasyTeamCard.vue';
-import { MOCK_TEAMS_WITH_PLAYERS } from '@/api/mock-teams'; // Using mock data
+import { MOCK_TEAMS_DATA } from '@/api/mock-teams'; // Using mock data
 import type { Team } from '@/types/team.interface';
 
 export default defineComponent({
@@ -43,7 +43,7 @@ export default defineComponent({
   },
   created() {
     // In a real app, this would be an API call. We deep copy to allow modification.
-    this.teams = JSON.parse(JSON.stringify(MOCK_TEAMS_WITH_PLAYERS)); 
+    this.teams = JSON.parse(JSON.stringify(MOCK_TEAMS_DATA)); 
   },
   methods: {
     handleRemovePlayer({ teamId, playerId }: { teamId: number, playerId: number }) {

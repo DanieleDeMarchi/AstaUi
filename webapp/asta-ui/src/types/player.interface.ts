@@ -4,13 +4,8 @@ export interface Player {
   position: string
   nbaTeam: string
   photoUrl: string
-  stats: PlayerStats
-  // New property to track auction status
-  soldInfo?: {
-    teamId: number
-    teamName: string
-    price: number
-  }
+  stats?: PlayerStats // Stats are optional
+  soldInfo?: PlayerSoldInfo
 }
 
 export interface PlayerStats {
@@ -19,3 +14,13 @@ export interface PlayerStats {
   reboundsPerGame: number
   assistsPerGame: number
 }
+
+/**
+ * Information about a player who has been sold.
+ * This is stored on the Player object.
+ */
+export interface PlayerSoldInfo {
+  teamId: number // Reference to the team that bought the player
+  price: number
+}
+
