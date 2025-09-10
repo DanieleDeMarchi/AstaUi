@@ -11,29 +11,29 @@
         <div
           v-for="acquisition in acquisitions"
           :key="acquisition.id"
-          class="flex-shrink-0 px-2"
+          class="flex-shrink-0 px-1"
           :style="{ width: `${cardWidthPercentage}%` }"
         >
           <!-- Acquisition Card -->
-          <div class="bg-gray-700 rounded-md p-2 h-full flex items-center space-x-3 text-white">
+          <div class="bg-gray-700 rounded-md py-1 px-2 h-full flex items-center space-x-3 text-white">
             <!-- Player Image -->
             <img 
               :src="acquisition.player.photoUrl" 
               :alt="acquisition.player.name" 
-              class="w-12 h-12 rounded-full object-cover border-2 flex-shrink-0" 
-              :class="roleColor(acquisition.player.role)"
+              class="w-10 h-10 rounded-full object-cover border-2 flex-shrink-0" 
+              :class="roleColor(acquisition.player.position)"
             >
             
             <!-- Info Column -->
             <div class="flex flex-col h-full flex-grow min-w-0">
-              <p class="font-bold text-base truncate">{{ acquisition.player.name }}</p>
+              <p class="font-bold text-sm truncate">{{ acquisition.player.name }}</p>
               
-              <div class="flex items-center space-x-1 text-green-400">
+              <div class="flex items-center text-sm space-x-1 text-green-400">
                 <span class="font-semibold">{{ acquisition.price }}cr</span>
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                 </svg>
-                <p class="font-semibold text-gray-300 truncate">{{ acquisition.team.name }}</p>
+                <p class="font-semibold text-sm text-gray-300 truncate">{{ acquisition.team.name }}</p>
               </div>
             </div>
           </div>
@@ -45,7 +45,7 @@
     <template v-if="acquisitions.length > visibleCards">
       <button 
         @click="scrollPrevious"
-        class="absolute top-1/2 left-0 transform -translate-y-1/2 -translate-x-3 bg-gray-900 bg-opacity-70 text-white rounded-full w-8 h-8 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"
+        class="absolute top-1/2 left-1 transform -translate-y-1/2 bg-gray-900 bg-opacity-70 text-white rounded-full w-8 h-8 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"
       >
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
@@ -53,7 +53,7 @@
       </button>
       <button 
         @click="scrollNext"
-        class="absolute top-1/2 right-0 transform -translate-y-1/2 translate-x-3 bg-gray-900 bg-opacity-70 text-white rounded-full w-8 h-8 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"
+        class="absolute top-1/2 right-1 transform -translate-y-1/2 bg-gray-900 bg-opacity-70 text-white rounded-full w-8 h-8 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"
       >
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
@@ -65,8 +65,7 @@
 
 <script lang="ts">
 import { defineComponent, type PropType } from 'vue'
-import type { Acquisition } from '@/types/misc.interface'
-import type { PlayerRole } from '@/types/team.interface'
+import type { Acquisition, PlayerRole } from '@/types'
 
 export default defineComponent({
   name: 'AcquisitionsCarousel',

@@ -25,18 +25,17 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import AcquisitionsCarousel from '@/components/auction/AcquisitionCarousel.vue'
-import type { Acquisition } from '@/types/misc.interface'
-import type { PlayerRole } from '@/types/team.interface'
+import type { Acquisition, PlayerRole } from '@/types'
 
 // Mock Data for Simulation
 const MOCK_PLAYERS = [
-  { name: 'Nikola Jokic', photoUrl: 'https://cdn.nba.com/headshots/nba/latest/1040x760/203999.png', role: 'C' as PlayerRole },
-  { name: 'Stephen Curry', photoUrl: 'https://cdn.nba.com/headshots/nba/latest/1040x760/201939.png', role: 'G' as PlayerRole },
-  { name: 'LeBron James', photoUrl: 'https://cdn.nba.com/headshots/nba/latest/1040x760/2544.png', role: 'F' as PlayerRole },
-  { name: 'Kevin Durant', photoUrl: 'https://cdn.nba.com/headshots/nba/latest/1040x760/201142.png', role: 'F' as PlayerRole },
-  { name: 'Giannis Antetokounmpo', photoUrl: 'https://cdn.nba.com/headshots/nba/latest/1040x760/203507.png', role: 'F' as PlayerRole },
-  { name: 'Luka Doncic', photoUrl: 'https://cdn.nba.com/headshots/nba/latest/1040x760/1629029.png', role: 'G' as PlayerRole },
-  { name: 'Joel Embiid', photoUrl: 'https://cdn.nba.com/headshots/nba/latest/1040x760/203954.png', role: 'C' as PlayerRole },
+  { name: 'Nikola Jokic', photoUrl: 'https://cdn.nba.com/headshots/nba/latest/1040x760/203999.png', position: 'C' as PlayerRole },
+  { name: 'Stephen Curry', photoUrl: 'https://cdn.nba.com/headshots/nba/latest/1040x760/201939.png', position: 'G' as PlayerRole },
+  { name: 'LeBron James', photoUrl: 'https://cdn.nba.com/headshots/nba/latest/1040x760/2544.png', position: 'F' as PlayerRole },
+  { name: 'Kevin Durant', photoUrl: 'https://cdn.nba.com/headshots/nba/latest/1040x760/201142.png', position: 'F' as PlayerRole },
+  { name: 'Giannis Antetokounmpo', photoUrl: 'https://cdn.nba.com/headshots/nba/latest/1040x760/203507.png', position: 'F' as PlayerRole },
+  { name: 'Luka Doncic', photoUrl: 'https://cdn.nba.com/headshots/nba/latest/1040x760/1629029.png', position: 'G' as PlayerRole },
+  { name: 'Joel Embiid', photoUrl: 'https://cdn.nba.com/headshots/nba/latest/1040x760/203954.png', position: 'C' as PlayerRole },
 ];
 
 const MOCK_TEAMS = [

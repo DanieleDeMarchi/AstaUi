@@ -24,7 +24,7 @@ import { useToast } from 'primevue/usetoast';
 import Toast from 'primevue/toast';
 import FantasyTeamCard from '@/components/auction/FantasyTeamCard.vue';
 import { MOCK_TEAMS_DATA } from '@/api/mock-teams'; // Using mock data
-import type { Team } from '@/types/team.interface';
+import type { FantasyTeam } from '@/types';
 
 export default defineComponent({
   name: 'ControlPanelView',
@@ -38,7 +38,7 @@ export default defineComponent({
   },
   data() {
     return {
-      teams: [] as Team[]
+      teams: [] as FantasyTeam[]
     };
   },
   created() {

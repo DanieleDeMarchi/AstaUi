@@ -131,18 +131,27 @@
 <script lang="ts">
 import { defineComponent, type PropType } from 'vue'
 import Card from 'primevue/card'
-import Button from 'primevue/button' // <-- Import Button
-import type { Team, RosterSlot, PlayerRole } from '@/types/team.interface'
+import Button from 'primevue/button'
+// Corrected: Import all types from the consolidated index file
+import type { FantasyTeam, Player, PlayerRole } from '@/types'
+
+// The RosterSlot type is now defined locally as it's specific to this component's presentation logic.
+interface RosterSlot {
+  role: PlayerRole
+  isReserve: boolean
+  player?: Player
+}
 
 export default defineComponent({
   name: 'FantasyTeamCard',
   components: {
     Card,
-    Button // <-- Register Button
+    Button
   },
   props: {
     team: {
-      type: Object as PropType<Team>,
+      // Corrected: Use the FantasyTeam type
+      type: Object as PropType<FantasyTeam>,
       required: true
     },
     size: {
@@ -158,38 +167,39 @@ export default defineComponent({
   methods: {
     getRoleIndicatorClasses(slot: RosterSlot) {
       if (slot.isReserve) {
-        return 'bg-purple-200 text-purple-800';
+        return 'bg-purple-200 text-purple-800'
       }
       switch (slot.role) {
-        case 'G': return 'bg-green-200 text-green-800';
-        case 'F': return 'bg-yellow-200 text-yellow-800';
-        case 'C': return 'bg-red-200 text-red-800';
-        default: return 'bg-gray-200 text-gray-800';
+        case 'G': return 'bg-green-200 text-green-800'
+        case 'F': return 'bg-yellow-200 text-yellow-800'
+        case 'C': return 'bg-red-200 text-red-800'
+        default: return 'bg-gray-200 text-gray-800'
       }
     },
     getRowClasses(slot: RosterSlot) {
-        let baseClasses = 'border-b';
+        const baseClasses = 'border-b';
         if (slot.isReserve) {
-            return `${baseClasses} bg-purple-50 border-purple-100`;
+            return `${baseClasses} bg-purple-50 border-purple-100`
         }
         switch (slot.role) {
-            case 'G': return `${baseClasses} bg-green-50 border-green-100`;
-            case 'F': return `${baseClasses} bg-yellow-50 border-yellow-100`;
-            case 'C': return `${baseClasses} bg-red-50 border-red-100`;
-            default: return `${baseClasses} bg-gray-50 border-gray-100`;
+            case 'G': return `${baseClasses} bg-green-50 border-green-100`
+            case 'F': return `${baseClasses} bg-yellow-50 border-yellow-100`
+            case 'C': return `${baseClasses} bg-red-50 border-red-100`
+            default: return `${baseClasses} bg-gray-50 border-gray-100`
         }
     }
   },
   computed: {
     creditsLeft(): number {
-      const spentCredits = this.team.roster.reduce((total, player) => total + player.price, 0)
+      // Corrected: Safely handle potentially undefined price
+      const spentCredits = this.team.roster.reduce((total, player) => total + (player.price || 0), 0)
       return this.team.totalCredits - spentCredits
     },
     rosterSlots(): RosterSlot[] {
       const slots: RosterSlot[] = []
       
       const addSlots = (role: PlayerRole, count: number, isReserve: boolean) => {
-        const playersInRole = this.team.roster.filter(p => p.role === role && p.isReserve === isReserve);
+        const playersInRole = this.team.roster.filter(p => p.position === role && p.isReserve === isReserve);
         for (let i = 0; i < count; i++) {
           slots.push({ role, isReserve, player: playersInRole[i] });
         }

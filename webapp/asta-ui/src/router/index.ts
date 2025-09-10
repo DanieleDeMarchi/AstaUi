@@ -1,28 +1,28 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import TestView from '@/views/TestView.vue'
-import TeamCarouselTestView from '@/views/TeamCarouselTestView.vue'
 import AcquisitionTestView from '@/views/AcquisitionTestView.vue'
 import PlayerListView from '@/views/PlayerListView.vue'
 import ControlPanelView from '@/views/ControlPanelView.vue'
+import AuctionView from '@/views/AuctionView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',
+      name: 'AstaUi',
+      meta: {
+        title: 'AstaUi'
+      },      
+      component: AuctionView
+    },
+    {
+      path: '/catalog',
       name: 'test',
       meta: {
         title: 'Catalog'
       },      
       component: TestView
-    },
-    {
-      path: '/teams',
-      name: 'teams',
-      meta: {
-        title: 'Squadre',
-      },    
-      component: TeamCarouselTestView
     },
     {
       path: '/acquisitions',

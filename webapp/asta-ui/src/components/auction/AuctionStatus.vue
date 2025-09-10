@@ -1,23 +1,26 @@
 <template>
-  <Card class="w-full bg-white shadow-xl border-2 border-blue-500">
+  <Card 
+    pt:body:class="!p-0 !gap-0" 
+    pt:root:class="overflow-hidden"
+    class="w-full bg-white">
     <template #title>
-      <div class="text-center text-2xl font-bold text-gray-800 p-4 bg-gray-50 border-b">
+      <div class="text-center text-2xl font-bold text-gray-800 p-2 bg-gray-100 border-b">
         ON THE BLOCK
       </div>
     </template>
     <template #content>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center p-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center p-2 min-h-64">
         <!-- Left Side: Player Card -->
         <div v-if="player">
           <NbaPlayerCard :player="player" />
         </div>
         <div v-else class="flex items-center justify-center h-full bg-gray-100 rounded-lg">
-           <p class="text-gray-500 text-xl">Waiting for player selection...</p>
+          <p class="text-gray-500 text-xl">Waiting for player selection...</p>
         </div>
 
         <!-- Right Side: Bidding Info -->
         <div class="space-y-6 text-center">
-           <div v-if="player">
+          <div v-if="player">
             <!-- Current Bid -->
             <div>
               <p class="text-lg text-gray-600 mb-1">Current Bid</p>
@@ -29,22 +32,23 @@
             <!-- Leading Team -->
             <div>
               <p class="text-lg text-gray-600 mb-2">Leading Team</p>
-              <div v-if="leadingTeam" class="inline-flex items-center space-x-3 bg-gray-100 p-3 rounded-lg">
-                <img 
-                  :src="leadingTeam.coachPhotoUrl" 
+              <div
+                v-if="leadingTeam"
+                class="inline-flex items-center space-x-3 bg-gray-100 p-3 rounded-lg"
+              >
+                <img
+                  :src="leadingTeam.coachPhotoUrl"
                   :alt="leadingTeam.coachName"
                   class="w-12 h-12 rounded-full object-cover border-2 border-gray-300"
                 />
                 <span class="text-2xl font-semibold text-gray-800">{{ leadingTeam.name }}</span>
               </div>
-               <div v-else class="text-2xl font-semibold text-gray-500">
-                No bids yet
-               </div>
+              <div v-else class="text-2xl font-semibold text-gray-500">No bids yet</div>
             </div>
-           </div>
-           <div v-else>
-              <p class="text-gray-500 text-lg">Select a player to start the auction.</p>
-           </div>
+          </div>
+          <div v-else>
+            <p class="text-gray-500 text-lg">Waiting for player selection...</p>
+          </div>
         </div>
       </div>
     </template>
@@ -55,8 +59,7 @@
 import { defineComponent, type PropType } from 'vue'
 import Card from 'primevue/card'
 import NbaPlayerCard from '@/components/auction/NbaPlayerCard.vue'
-import type { Player } from '@/types/player.interface'
-import type { Team } from '@/types/team.interface'
+import type { Player, FantasyTeam } from '@/types'
 
 export default defineComponent({
   name: 'AuctionStatus',
@@ -74,7 +77,8 @@ export default defineComponent({
       default: 0
     },
     leadingTeam: {
-      type: Object as PropType<Team | null>,
+      // Corrected: Use the FantasyTeam type
+      type: Object as PropType<FantasyTeam | null>,
       default: null
     }
   }
