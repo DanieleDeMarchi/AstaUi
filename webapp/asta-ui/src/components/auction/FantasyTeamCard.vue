@@ -33,7 +33,7 @@
               <tr class="border-b-2 border-gray-200">
                 <th class="text-left py-2 px-4 font-semibold text-gray-700">Role</th>
                 <th class="text-left py-2 px-4 font-semibold text-gray-700">Player</th>
-                <th class="text-left py-2 px-4 font-semibold text-gray-700">Team</th>
+                <!-- <th class="text-left py-2 px-4 font-semibold text-gray-700">Team</th> -->
                 <th class="text-right py-2 px-4 font-semibold text-gray-700">Price</th>
                 <th v-if="isAdminView" class="text-center py-2 px-4 font-semibold text-gray-700">Actions</th>
               </tr>
@@ -45,13 +45,13 @@
                 :key="`${slot.role}-${index}`"
                 :class="getRowClasses(slot)"
               >
-                <td class="py-3 px-4">
+                <td class="py-3 pl-4 px-2">
                   <span :class="getRoleIndicatorClasses(slot)" class="px-2 py-1 text-xs font-bold rounded-full">{{ slot.role }}</span>
                 </td>
-                <td class="py-3 px-4 font-medium">{{ slot.player?.name || '-' }}</td>
-                <td class="py-3 px-4">{{ slot.player?.nbaTeam || '-' }}</td>
-                <td class="py-3 px-4 text-right font-semibold">{{ slot.player?.price || '-' }}</td>
-                <td v-if="isAdminView" class="py-3 px-4 text-center">
+                <td class="py-3 px-2 font-medium">{{ slot.player?.name || '-' }}</td>
+                <!-- <td class="py-3 px-2">{{ slot.player?.nbaTeam || '-' }}</td> -->
+                <td class="py-3 px-2 text-right font-semibold">{{ slot.player?.price || '-' }}</td>
+                <td v-if="isAdminView" class="py-1 px-4 text-center">
                   <Button
                     v-if="slot.player"
                     icon="pi pi-trash"

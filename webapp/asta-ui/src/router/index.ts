@@ -1,9 +1,9 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import TestView from '@/views/TestView.vue'
-import AcquisitionTestView from '@/views/AcquisitionTestView.vue'
 import PlayerListView from '@/views/PlayerListView.vue'
 import ControlPanelView from '@/views/ControlPanelView.vue'
 import AuctionView from '@/views/AuctionView.vue'
+import CommissionerView from '@/views/CommissionerView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -17,20 +17,17 @@ const router = createRouter({
       component: AuctionView
     },
     {
+      path: '/commissioner',
+      name: 'Commissioner',
+      component: CommissionerView
+    },
+    {
       path: '/catalog',
       name: 'test',
       meta: {
         title: 'Catalog'
       },      
       component: TestView
-    },
-    {
-      path: '/acquisitions',
-      name: 'acquisitions',
-      meta: {
-        title: 'Acquisti',
-      },  
-      component: AcquisitionTestView
     },
     {
       path: '/listone',

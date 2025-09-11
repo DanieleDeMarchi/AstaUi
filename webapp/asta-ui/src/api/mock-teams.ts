@@ -42,6 +42,17 @@ export const MOCK_TEAMS_DATA: FantasyTeam[] = [
         isReserve: false,
         stats: { gamesPlayed: 79, pointsPerGame: 26.4, reboundsPerGame: 12.4, assistsPerGame: 9.0 },
         fantasyTeamId: 1
+      },
+      {
+        id: 5,
+        name: 'Giannis Antetokounmpo',
+        position: 'F',
+        nbaTeam: 'Milwaukee Bucks',
+        photoUrl: 'https://cdn.nba.com/headshots/nba/latest/1040x760/203507.png',
+        stats: { gamesPlayed: 73, pointsPerGame: 30.4, reboundsPerGame: 11.5, assistsPerGame: 6.5 },
+        fantasyTeamId: 1,
+        price: 85,
+        isReserve: false,
       }
     ]
   },

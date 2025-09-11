@@ -1,71 +1,62 @@
 <template>
-  <Card class="w-full bg-gray-800" 
+  <div class="w-full h-full bg-gray-800 rounded-lg shadow-lg flex flex-col justify-center p-2">
+    <div class="p-4 text-center">
+      <img
+        :src="player.photoUrl"
+        :alt="player.name"
+        class="w-32 h-32 rounded-full mx-auto object-cover border-4 border-white bg-gray-300"
+      />
+    </div>
 
-    pt:body:class="!p-2 "
-    pt:root:class="overflow-hidden !bg-gray-800">
-    <template #header>
-      <div class="p-4 text-center">
-        <img 
-          :src="player.photoUrl" 
-          :alt="player.name"
-          class="w-32 h-32 rounded-full mx-auto object-cover border-4 border-white bg-gray-300"
-        />
+    <div class="text-center space-y-4 mt-2 pb-6">
+      <!-- Player Name -->
+      <h2 class="text-2xl font-bold text-white">{{ player.name }}</h2>
+
+      <!-- Team Info -->
+      <div class="flex items-center justify-center space-x-3">
+        <img :src="getTeamLogo(player.nbaTeam)" :alt="player.nbaTeam" class="w-8 h-8" />
+        <span class="text-lg font-medium text-gray-100">{{ player.nbaTeam }}</span>
+        <Badge :value="player.position" class="ml-2" severity="info" />
       </div>
-    </template>
-    
-    <template #content>
-      <div class="text-center space-y-4 pb-2">
-        <!-- Player Name -->
-        <h2 class="text-2xl font-bold text-white">{{ player.name }}</h2>
-        
-        <!-- Team Info -->
-        <div class="flex items-center justify-center space-x-3">
-          <img 
-            :src="getTeamLogo(player.nbaTeam)" 
-            :alt="player.nbaTeam"
-            class="w-8 h-8"
-          />
-          <span class="text-lg font-medium text-gray-100">{{ player.nbaTeam }}</span>
-          <Badge :value="player.position" class="ml-2" severity="info" />
+
+      <!-- Stats Grid -->
+      <div class="grid grid-cols-4 bg-gray-50 rounded-lg gap-2 mx-4">
+        <div class="text-center p-1">
+          <div class="text-2xl font-bold text-blue-600">{{ player.stats.gamesPlayed }}</div>
+          <div class="text-sm text-gray-500">Games</div>
         </div>
-        
-        <!-- Stats Grid -->
-        <div class="grid grid-cols-4 bg-gray-50 rounded-lg gap-2 mx-4">
-          <div class="text-center p-1">
-            <div class="text-2xl font-bold text-blue-600">{{ player.stats.gamesPlayed }}</div>
-            <div class="text-sm text-gray-500">Games</div>
+
+        <div class="text-center p-1">
+          <div class="text-2xl font-bold text-green-600">{{ player.stats.pointsPerGame }}</div>
+          <div class="text-sm text-gray-500">PPG</div>
+        </div>
+
+        <div class="text-center p-1">
+          <div class="text-2xl font-bold text-purple-600">
+            {{ player.stats.reboundsPerGame }}
           </div>
-          
-          <div class="text-center p-1">
-            <div class="text-2xl font-bold text-green-600">{{ player.stats.pointsPerGame }}</div>
-            <div class="text-sm text-gray-500">PPG</div>
+          <div class="text-sm text-gray-500">RPG</div>
+        </div>
+
+        <div class="text-center p-1">
+          <div class="text-2xl font-bold text-orange-600">
+            {{ player.stats.assistsPerGame }}
           </div>
-          
-          <div class="text-center p-1">
-            <div class="text-2xl font-bold text-purple-600">{{ player.stats.reboundsPerGame }}</div>
-            <div class="text-sm text-gray-500">RPG</div>
-          </div>
-          
-          <div class="text-center p-1">
-            <div class="text-2xl font-bold text-orange-600">{{ player.stats.assistsPerGame }}</div>
-            <div class="text-sm text-gray-500">APG</div>
-          </div>
+          <div class="text-sm text-gray-500">APG</div>
         </div>
       </div>
-    </template>
-  </Card>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import Card from 'primevue/card'
 import Badge from 'primevue/badge'
 import type { Player } from '@/types'
 
 export default defineComponent({
   name: 'NbaPlayerCard',
   components: {
-    Card,
     Badge
   },
   props: {
@@ -88,3 +79,4 @@ export default defineComponent({
   }
 })
 </script>
+

@@ -1,32 +1,19 @@
 import { defineStore } from 'pinia'
 import { getMockAuctionState } from '@/api/mock.api'
-import type { AuctionState, FantasyTeam } from '@/types'
+import { webSocketAPI } from '@/api/websocket'
+import type { AuctionState, FantasyTeam, CurrentAuctionData } from '@/types'
+import type { WebSocketMessage } from '@/types/websocket'
 
 export const useAuctionStore = defineStore('auction', {
-  /**
-   * Defines the initial state of the store.
-   * It's an empty shell that matches our AuctionState type.
-   */
   state: (): AuctionState => ({
     stateVersion: 0,
     acquisitions: [],
-    currentAuction: {
-      player: null,
-      currentBid: 0,
-      leadingTeamId: null
-    },
+    // Corrected: Initialize currentAuction to null
+    currentAuction: null,
     teams: []
   }),
 
-  /**
-   * Getters are like computed properties for the store.
-   * They derive state without modifying it.
-   */
   getters: {
-    /**
-     * Finds and returns the full FantasyTeam object for the leading bidder.
-     * Components can use this without needing to do the find logic themselves.
-     */
     leadingTeam(state): FantasyTeam | undefined {
       if (!state.currentAuction?.leadingTeamId) {
         return undefined
@@ -35,23 +22,67 @@ export const useAuctionStore = defineStore('auction', {
     }
   },
 
-  /**
-   * Actions are methods that can modify the state.
-   */
   actions: {
-    /**
-     * Fetches the initial state from the API and populates the store.
-     * This is the main entry point for initializing the application's data.
-     */
     async initialize() {
       try {
         const initialState = await getMockAuctionState()
-        // The $state property is a powerful Pinia feature that allows us
-        // to replace the entire state object at once.
         this.$state = initialState
+
+        // Connect to the WebSocket service to listen for real-time updates
+        webSocketAPI.connect((message: WebSocketMessage) => {
+          this._handleIncomingEvent(message)
+        })
       } catch (error) {
         console.error('Failed to initialize auction state:', error)
-        // Here you could set an error state to show a message in the UI
+      }
+    },
+
+    _handleIncomingEvent(message: WebSocketMessage) {
+      console.log('Received WebSocket message:', message)
+
+      if (message.stateVersion !== this.stateVersion + 1) {
+        console.warn(
+          `State mismatch! Local: ${this.stateVersion}, Server: ${message.stateVersion}. Resyncing...`
+        )
+        // this._resyncState();
+        return
+      }
+
+      this._applyEvent(message)
+    },
+
+    _applyEvent(message: WebSocketMessage) {
+      this.stateVersion = message.stateVersion
+      const payload = message.payload
+
+      switch (payload.eventType) {
+        case 'AUCTION_START':
+          // Create the auction object
+          this.currentAuction = {
+            player: payload.player,
+            currentBid: 0,
+            leadingTeamId: null
+          }
+          break
+
+        case 'BID_PLACED':
+          // Add a null check for safety
+          if (this.currentAuction) {
+            this.currentAuction.currentBid = payload.currentBid
+            this.currentAuction.leadingTeamId = payload.leadingTeamId
+          }
+          break
+
+        case 'PLAYER_SOLD':
+          // Update the winning team's roster
+          this.teams = this.teams.map((team) =>
+            team.id === payload.winningTeam.id ? payload.winningTeam : team
+          )
+          // Add to acquisitions
+          this.acquisitions.unshift(payload.acquisition)
+          // Reset the auction by setting it to null
+          this.currentAuction = null
+          break
       }
     }
   }

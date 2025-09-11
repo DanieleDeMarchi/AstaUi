@@ -129,11 +129,7 @@ export const getMockAuctionState = (): Promise<AuctionState> => {
   const mockState: AuctionState = {
     stateVersion: 1,
     acquisitions: MOCK_ACQUISITIONS,
-    currentAuction: {
-      player: MOCK_PLAYER_ON_BLOCK,
-      currentBid: 85,
-      leadingTeamId: 2 // The Annihilators
-    },
+    currentAuction: null,
     teams: MOCK_TEAMS_DATA
   }
 

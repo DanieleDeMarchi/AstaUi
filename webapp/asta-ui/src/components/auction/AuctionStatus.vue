@@ -1,20 +1,24 @@
 <template>
-  <Card 
-    pt:body:class="!p-0 !gap-0" 
-    pt:root:class="overflow-hidden"
-    class="w-full bg-white">
+  <Card
+    class="h-full"
+    :pt="{
+      root: { class: 'flex flex-col h-full overflow-hidden' },
+      body: { class: 'flex-grow flex flex-col !p-0' },
+      content: { class: 'flex-grow flex items-center' }
+    }"
+  >
     <template #title>
-      <div class="text-center text-2xl font-bold text-gray-800 p-2 bg-gray-100 border-b">
+      <div class="text-center text-2xl font-bold text-gray-800 p-4 bg-gray-50 border-b">
         ON THE BLOCK
       </div>
     </template>
     <template #content>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center p-2 min-h-64">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center p-1 h-full w-full">
         <!-- Left Side: Player Card -->
-        <div v-if="player">
+        <div v-if="player" class="h-full">
           <NbaPlayerCard :player="player" />
         </div>
-        <div v-else class="flex items-center justify-center h-full bg-gray-100 rounded-lg">
+        <div v-else class="flex items-center justify-center h-full bg-gray-100 rounded-lg min-h-[300px]">
           <p class="text-gray-500 text-xl">Waiting for player selection...</p>
         </div>
 
@@ -47,7 +51,7 @@
             </div>
           </div>
           <div v-else>
-            <p class="text-gray-500 text-lg">Waiting for player selection...</p>
+            <p class="text-gray-500 text-lg">Select a player to start the auction.</p>
           </div>
         </div>
       </div>
@@ -77,10 +81,10 @@ export default defineComponent({
       default: 0
     },
     leadingTeam: {
-      // Corrected: Use the FantasyTeam type
       type: Object as PropType<FantasyTeam | null>,
       default: null
     }
   }
 })
 </script>
+
