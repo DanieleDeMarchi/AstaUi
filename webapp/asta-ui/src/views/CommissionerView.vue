@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-screen bg-gray-100 p-4 md:p-6">
-    <div class="max-w-screen-2xl mx-auto">
+    <div v-if="!isLoading" class="max-w-screen-2xl mx-auto">
       <h1 class="text-4xl font-bold text-center mb-6 text-gray-800">Commissioner Dashboard</h1>
 
       <!-- Upper Section: Live Auction Controls -->
@@ -9,8 +9,8 @@
           <!-- Left Side: Auction Status -->
           <div class="">
             <AuctionStatus
-              :player="mockAuction.player"
-              :current-bid="mockAuction.currentBid"
+              :player="state.currentAuction?.player || null"
+              :current-bid="state.currentAuction?.currentBid || 0"
               :leading-team="leadingTeam"
             />
           </div>
@@ -19,10 +19,10 @@
           <div class="bg-white p-4 rounded-lg shadow-md">
             <h2 class="text-2xl font-semibold text-gray-700 mb-4 text-center">Controls</h2>
             <AuctionControls
-              :teams="mockTeams"
-              :player-on-block="mockAuction.player"
-              :current-bid="mockAuction.currentBid"
-              :leading-team-id="mockAuction.leadingTeamId"
+              :teams="state.teams"
+              :player-on-block="state.currentAuction?.player || null"
+              :current-bid="state.currentAuction?.currentBid || 0"
+              :leading-team-id="state.currentAuction?.leadingTeamId || null"
               @start-auction="handleStartAuction"
               @place-bid="handlePlaceBid"
               @sell-player="handleSellPlayer"
@@ -37,12 +37,15 @@
       <!-- Lower Section: Team Roster Management -->
       <section>
         <h2 class="text-3xl font-bold text-center mb-6 text-gray-800">Team Rosters</h2>
-        <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
-          <div v-for="team in mockTeams" :key="team.id">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-2">
+          <div v-for="team in state.teams" :key="team.id">
             <FantasyTeamCard :team="team" size="full" :is-admin-view="true" />
           </div>
         </div>
       </section>
+    </div>
+     <div v-else class="text-center p-20">
+      <h2 class="text-2xl font-semibold text-gray-600">Loading Dashboard...</h2>
     </div>
   </div>
 </template>
@@ -52,8 +55,15 @@ import { defineComponent } from 'vue'
 import AuctionStatus from '@/components/auction/AuctionStatus.vue'
 import AuctionControls from '@/components/commissioner/AuctionControls.vue'
 import FantasyTeamCard from '@/components/auction/FantasyTeamCard.vue'
-import { MOCK_TEAMS_DATA } from '@/api/mock-teams'
+import {
+  fetchCommissionerState,
+  startAuctionApi,
+  placeBidApi,
+  sellPlayerApi,
+  cancelAuctionApi
+} from '@/api/commissioner.api'
 import type { Player, FantasyTeam } from '@/types'
+import type { CommissionerState } from '@/types/commissioner.interface'
 
 export default defineComponent({
   name: 'CommissionerView',
@@ -64,49 +74,41 @@ export default defineComponent({
   },
   data() {
     return {
-      mockTeams: MOCK_TEAMS_DATA,
-      mockAuction: {
-        player: null as Player | null,
-        currentBid: 0,
-        leadingTeamId: null as number | null
-      }
+      isLoading: true,
+      state: {
+        currentAuction: null,
+        teams: []
+      } as CommissionerState
     }
   },
   computed: {
     leadingTeam(): FantasyTeam | undefined {
-      if (!this.mockAuction.leadingTeamId) return undefined
-      return this.mockTeams.find((team) => team.id === this.mockAuction.leadingTeamId)
+      const leadingId = this.state.currentAuction?.leadingTeamId
+      if (!leadingId) return undefined
+      return this.state.teams.find((team) => team.id === leadingId)
     }
   },
   methods: {
-    handleStartAuction(player: Player) {
-      console.log('COMMISSIONER VIEW: Start auction for', player)
-      this.mockAuction.player = player
-      this.mockAuction.currentBid = 0
-      this.mockAuction.leadingTeamId = null
+    async handleStartAuction(player: Player) {
+      this.state = await startAuctionApi(player)
     },
-    handleCancelAuction() {
-      console.log('COMMISSIONER VIEW: Cancel auction')
-      this.mockAuction.player = null
-      this.mockAuction.currentBid = 0
-      this.mockAuction.leadingTeamId = null
+    async handleCancelAuction() {
+      this.state = await cancelAuctionApi()
     },
-    handlePlaceBid({ teamId, amount }: { teamId: number; amount: number }) {
-      console.log(`COMMISSIONER VIEW: Bid of ${amount} for team ${teamId}`)
-      this.mockAuction.leadingTeamId = teamId
-      this.mockAuction.currentBid = amount
+    async handlePlaceBid({ teamId, amount }: { teamId: number; amount: number }) {
+      this.state = await placeBidApi(teamId, amount)
     },
-    handleSellPlayer() {
-      console.log('COMMISSIONER VIEW: Sell player')
-      const team = this.leadingTeam
-      const player = this.mockAuction.player
-      if (team && player) {
-        const soldPlayer = { ...player, price: this.mockAuction.currentBid, fantasyTeamId: team.id }
-        team.roster.push(soldPlayer)
-      }
-      this.mockAuction.player = null
-      this.mockAuction.currentBid = 0
-      this.mockAuction.leadingTeamId = null
+    async handleSellPlayer() {
+      this.state = await sellPlayerApi()
+    }
+  },
+  async mounted() {
+    try {
+      this.state = await fetchCommissionerState()
+    } catch (error) {
+      console.error("Failed to load commissioner dashboard:", error)
+    } finally {
+      this.isLoading = false
     }
   }
 })

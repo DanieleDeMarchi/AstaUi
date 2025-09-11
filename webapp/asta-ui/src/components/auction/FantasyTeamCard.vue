@@ -132,10 +132,8 @@
 import { defineComponent, type PropType } from 'vue'
 import Card from 'primevue/card'
 import Button from 'primevue/button'
-// Corrected: Import all types from the consolidated index file
 import type { FantasyTeam, Player, PlayerRole } from '@/types'
 
-// The RosterSlot type is now defined locally as it's specific to this component's presentation logic.
 interface RosterSlot {
   role: PlayerRole
   isReserve: boolean
@@ -150,7 +148,6 @@ export default defineComponent({
   },
   props: {
     team: {
-      // Corrected: Use the FantasyTeam type
       type: Object as PropType<FantasyTeam>,
       required: true
     },

@@ -20,15 +20,33 @@ class MockBackendService {
   private isInitialized = false
   private messageHandler: ((message: WebSocketMessage) => void) | null = null
 
+  // A promise that resolves when the async constructor logic is complete
+  private ready: Promise<void>
+  private _resolveReady!: () => void
+
   constructor() {
+    // Set up the promise that other methods will await
+    this.ready = new Promise((resolve) => {
+      this._resolveReady = resolve
+    })
     this._initialize()
   }
 
-  // CORRECTED: New private method to handle the async operation.
   private async _initialize() {
     this.state = await getMockAuctionState()
     this.isInitialized = true
     console.log('Mock Backend Initialized. Access with `astaMock` in the console.')
+    // Resolve the promise, signaling that the service is ready
+    this._resolveReady()
+  }
+
+  public async getCurrentState(): Promise<AuctionState> {
+    await this.ready // Wait for initialization to complete
+    if (!this.isInitialized || !this.state) {
+      throw new Error('Mock backend state is not available or not initialized.')
+    }
+    // Return a deep copy to prevent direct mutation from outside
+    return JSON.parse(JSON.stringify(this.state))
   }
 
   // Called by the WebSocket service to listen for events
@@ -38,8 +56,8 @@ class MockBackendService {
 
   // --- Public methods to be called from the console ---
 
-  public startAuction(playerId: number) {
-    // ADDED: Guard to prevent running before state is loaded.
+  public async startAuction(playerId: number) {
+    await this.ready // Wait for initialization to complete
     if (!this.isInitialized || !this.state) {
       console.error('MockBackend is not ready yet.')
       return
@@ -64,7 +82,24 @@ class MockBackendService {
     })
   }
 
-  public placeBid(teamId: number, amount: number) {
+  public async cancelAuction() {
+    await this.ready
+    if (!this.isInitialized || !this.state) {
+      console.error('MockBackend is not ready yet.')
+      return
+    }
+
+    if(!this.state.currentAuction) {
+      console.error('No player on sale.')
+      return
+    }
+
+    this.state.currentAuction = null
+    this.state.stateVersion++
+  }
+
+  public async placeBid(teamId: number, amount: number) {
+    await this.ready
     if (!this.isInitialized || !this.state) {
       console.error('MockBackend is not ready yet.')
       return
@@ -96,7 +131,8 @@ class MockBackendService {
     })
   }
 
-  public sellPlayer() {
+  public async sellPlayer() {
+    await this.ready
     if (!this.isInitialized || !this.state) {
       console.error('MockBackend is not ready yet.')
       return
@@ -116,11 +152,16 @@ class MockBackendService {
     const winningTeam = this.state.teams.find((t) => t.id === leadingTeamId)
     if (!winningTeam) return
 
+    const isReserve = winningTeam.roster.filter((p) => p.position === player.position).length >= 4
+
     const soldPlayer: Player = {
       ...player,
       price: currentBid,
-      fantasyTeamId: leadingTeamId
+      fantasyTeamId: leadingTeamId,
+      isReserve: isReserve,
     }
+
+    console.log("Team before update", this.state.teams)
 
     const updatedTeam: FantasyTeam = {
       ...winningTeam,
@@ -128,6 +169,8 @@ class MockBackendService {
     }
 
     this.state.teams = this.state.teams.map((t) => (t.id === updatedTeam.id ? updatedTeam : t))
+
+    console.log("Team after update", this.state.teams)
 
     const acquisition: Acquisition = {
       id: new Date().toISOString(),
