@@ -47,3 +47,10 @@ export const cancelAuctionApi = async (): Promise<CommissionerState> => {
   return await getCommissionerState()
 }
 
+export const removePlayerApi = async (teamId: number, playerId: number): Promise<CommissionerState> => {
+    console.log(`API CALL: Removing player ${playerId} from team ${teamId}`)
+    await mockBackendService.removePlayerFromTeam(teamId, playerId)
+    await new Promise((res) => setTimeout(res, 200))
+    return getCommissionerState()
+  }
+

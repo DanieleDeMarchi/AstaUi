@@ -8,6 +8,10 @@ export interface AuctionStartPayload {
   player: Player // The full player object, including stats
 }
 
+export interface AuctionCancelledPayload {
+  eventType: 'AUCTION_CANCELLED'
+}
+
 /**
  * The structure for the payload when a new bid is placed.
  */
@@ -29,7 +33,7 @@ export interface PlayerSoldPayload {
 }
 
 // A discriminated union of all possible event payloads
-export type WebSocketEventPayload = AuctionStartPayload | BidPlacedPayload | PlayerSoldPayload
+export type WebSocketEventPayload = AuctionStartPayload | BidPlacedPayload | PlayerSoldPayload | AuctionCancelledPayload
 
 /**
  * The wrapper for any message coming from the WebSocket.

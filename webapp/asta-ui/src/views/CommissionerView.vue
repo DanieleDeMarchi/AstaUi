@@ -1,5 +1,6 @@
 <template>
   <div class="min-h-screen bg-gray-100 p-4 md:p-6">
+    <Toast />
     <div v-if="!isLoading" class="max-w-screen-2xl mx-auto">
       <h1 class="text-4xl font-bold text-center mb-6 text-gray-800">Commissioner Dashboard</h1>
 
@@ -37,14 +38,19 @@
       <!-- Lower Section: Team Roster Management -->
       <section>
         <h2 class="text-3xl font-bold text-center mb-6 text-gray-800">Team Rosters</h2>
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-2">
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
           <div v-for="team in state.teams" :key="team.id">
-            <FantasyTeamCard :team="team" size="full" :is-admin-view="true" />
+            <FantasyTeamCard
+              :team="team"
+              size="full"
+              :is-admin-view="true"
+              @remove-player="handleRemovePlayer"
+            />
           </div>
         </div>
       </section>
     </div>
-     <div v-else class="text-center p-20">
+    <div v-else class="text-center p-20">
       <h2 class="text-2xl font-semibold text-gray-600">Loading Dashboard...</h2>
     </div>
   </div>
@@ -52,6 +58,8 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
+import { useToast } from 'primevue/usetoast'
+import Toast from 'primevue/toast'
 import AuctionStatus from '@/components/auction/AuctionStatus.vue'
 import AuctionControls from '@/components/commissioner/AuctionControls.vue'
 import FantasyTeamCard from '@/components/auction/FantasyTeamCard.vue'
@@ -60,7 +68,8 @@ import {
   startAuctionApi,
   placeBidApi,
   sellPlayerApi,
-  cancelAuctionApi
+  cancelAuctionApi,
+  removePlayerApi
 } from '@/api/commissioner.api'
 import type { Player, FantasyTeam } from '@/types'
 import type { CommissionerState } from '@/types/commissioner.interface'
@@ -70,7 +79,12 @@ export default defineComponent({
   components: {
     AuctionStatus,
     AuctionControls,
-    FantasyTeamCard
+    FantasyTeamCard,
+    Toast
+  },
+  setup() {
+    const toast = useToast()
+    return { toast }
   },
   data() {
     return {
@@ -99,14 +113,34 @@ export default defineComponent({
       this.state = await placeBidApi(teamId, amount)
     },
     async handleSellPlayer() {
-      this.state = await sellPlayerApi()
+      const team = this.leadingTeam
+      const player = this.state.currentAuction?.player
+      if (team && player) {
+        this.state = await sellPlayerApi()
+      }
+    },
+    async handleRemovePlayer({ teamId, playerId }: { teamId: number; playerId: number }) {
+      const playerToRemove = this.state.teams
+        .flatMap((t) => t.roster)
+        .find((p) => p.id === playerId)
+
+      this.state = await removePlayerApi(teamId, playerId)
+
+      if (playerToRemove) {
+        this.toast.add({
+          severity: 'success',
+          summary: 'Player Removed',
+          detail: `${playerToRemove.name} has been successfully removed.`,
+          life: 3000
+        })
+      }
     }
   },
   async mounted() {
     try {
       this.state = await fetchCommissionerState()
     } catch (error) {
-      console.error("Failed to load commissioner dashboard:", error)
+      console.error('Failed to load commissioner dashboard:', error)
     } finally {
       this.isLoading = false
     }

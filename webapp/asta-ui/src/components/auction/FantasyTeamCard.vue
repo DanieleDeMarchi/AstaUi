@@ -1,15 +1,17 @@
 <template>
   <!-- Full Size Layout -->
   <template v-if="size === 'full'">
-    <Card class="w-full bg-white shadow-lg h-full flex flex-col"
-    pt:root:class="overflow-hidden"
-    pt:body:class="!p-0">
+    <Card
+      class="w-full bg-white shadow-lg h-full flex flex-col"
+      pt:root:class="overflow-hidden"
+      pt:body:class="!p-0"
+    >
       <!-- Header with coach and team info -->
       <template #header>
         <div class="flex items-center justify-between p-4">
           <div class="flex items-center space-x-4">
-            <img 
-              :src="team.coachPhotoUrl" 
+            <img
+              :src="team.coachPhotoUrl"
               :alt="team.coachName"
               class="w-16 h-16 rounded-full object-cover border-2 border-gray-300"
             />
@@ -33,30 +35,38 @@
               <tr class="border-b-2 border-gray-200">
                 <th class="text-left py-2 px-4 font-semibold text-gray-700">Role</th>
                 <th class="text-left py-2 px-4 font-semibold text-gray-700">Player</th>
-                <!-- <th class="text-left py-2 px-4 font-semibold text-gray-700">Team</th> -->
+                <th class="text-left py-2 px-4 font-semibold text-gray-700">Team</th>
                 <th class="text-right py-2 px-4 font-semibold text-gray-700">Price</th>
-                <th v-if="isAdminView" class="text-center py-2 px-4 font-semibold text-gray-700">Actions</th>
+                <th v-if="isAdminView" class="text-center py-2 px-4 font-semibold text-gray-700">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody>
               <!-- Combined Roster Slots -->
-              <tr 
-                v-for="(slot, index) in rosterSlots" 
+              <tr
+                v-for="(slot, index) in rosterSlots"
                 :key="`${slot.role}-${index}`"
                 :class="getRowClasses(slot)"
               >
-                <td class="py-3 pl-4 px-2">
-                  <span :class="getRoleIndicatorClasses(slot)" class="px-2 py-1 text-xs font-bold rounded-full">{{ slot.role }}</span>
+                <td class="py-3 px-4">
+                  <span
+                    :class="getRoleIndicatorClasses(slot)"
+                    class="px-2 py-1 text-xs font-bold rounded-full"
+                    >{{ slot.role }}</span
+                  >
                 </td>
-                <td class="py-3 px-2 font-medium">{{ slot.player?.name || '-' }}</td>
-                <!-- <td class="py-3 px-2">{{ slot.player?.nbaTeam || '-' }}</td> -->
-                <td class="py-3 px-2 text-right font-semibold">{{ slot.player?.price || '-' }}</td>
-                <td v-if="isAdminView" class="py-1 px-4 text-center">
+                <td class="py-3 px-4 font-medium">{{ slot.player?.name || '-' }}</td>
+                <td class="py-3 px-4">{{ slot.player?.nbaTeam || '-' }}</td>
+                <td class="py-3 px-4 text-right font-semibold">{{ slot.player?.price || '-' }}</td>
+                <td v-if="isAdminView" class="py-3 px-4 text-center">
                   <Button
                     v-if="slot.player"
                     icon="pi pi-trash"
-                    class="p-button-danger p-button-rounded p-button-text"
-                    @click="$emit('remove-player', { teamId: team.id, playerId: slot.player.id })"
+                    severity="danger"
+                    text
+                    rounded
+                    @click="confirmRemovePlayer(slot.player)"
                   />
                 </td>
               </tr>
@@ -69,17 +79,19 @@
 
   <!-- Compact Size Layout -->
   <template v-else>
-    <Card class="w-full bg-white shadow-lg h-full flex flex-col"
-    :ptOptions="{ mergeProps: true }"
-    pt:root:class="overflow-hidden"
-    pt:body:class="!p-0">
+    <Card
+      class="w-full bg-white shadow-lg h-full flex flex-col"
+      :ptOptions="{ mergeProps: true }"
+      pt:root:class="overflow-hidden"
+      pt:body:class="!p-0"
+    >
       <template #header>
         <!-- Compact Header -->
         <div class="p-1.5 border-b border-gray-200">
-           <div class="flex items-center justify-between">
+          <div class="flex items-center justify-between">
             <div class="flex items-center space-x-3 overflow-hidden">
-              <img 
-                :src="team.coachPhotoUrl" 
+              <img
+                :src="team.coachPhotoUrl"
                 :alt="team.coachName"
                 class="w-8 h-8 rounded-full object-cover flex-shrink-0"
               />
@@ -109,16 +121,22 @@
             </thead>
             <tbody>
               <!-- Combined Roster Slots -->
-              <tr 
-                v-for="(slot, index) in rosterSlots" 
+              <tr
+                v-for="(slot, index) in rosterSlots"
                 :key="`compact-${slot.role}-${index}`"
                 :class="getRowClasses(slot)"
               >
                 <td class="py-1 px-1 text-center">
-                   <span :class="getRoleIndicatorClasses(slot)" class="w-5 h-5 flex items-center justify-center text-xs font-bold rounded-full">{{ slot.role }}</span>
+                  <span
+                    :class="getRoleIndicatorClasses(slot)"
+                    class="w-5 h-5 flex items-center justify-center text-xs font-bold rounded-full"
+                    >{{ slot.role }}</span
+                  >
                 </td>
                 <td class="py-1 px-1 font-medium text-sm">{{ slot.player?.name || '-' }}</td>
-                <td class="py-1 px-1 text-right font-semibold text-sm">{{ slot.player?.price || '-' }}</td>
+                <td class="py-1 px-1 text-right font-semibold text-sm">
+                  {{ slot.player?.price || '-' }}
+                </td>
               </tr>
             </tbody>
           </table>
@@ -126,12 +144,34 @@
       </template>
     </Card>
   </template>
+
+  <!-- Confirmation Modal -->
+  <Dialog
+    v-model:visible="isRemoveModalVisible"
+    modal
+    header="Confirm Removal"
+    :style="{ width: '25rem' }"
+  >
+    <div v-if="playerToRemove" class="text-center">
+      <span class="p-text-secondary block mb-5"
+        >Are you sure you want to remove
+        <strong class="text-gray-800">{{ playerToRemove.name }}</strong> from
+        <strong class="text-gray-800">{{ team.name }}</strong
+        >?</span
+      >
+    </div>
+    <div class="flex justify-end gap-2">
+      <Button type="button" label="Cancel" severity="secondary" @click="isRemoveModalVisible = false"></Button>
+      <Button type="button" label="Remove" severity="danger" @click="handleConfirmRemove"></Button>
+    </div>
+  </Dialog>
 </template>
 
 <script lang="ts">
 import { defineComponent, type PropType } from 'vue'
 import Card from 'primevue/card'
 import Button from 'primevue/button'
+import Dialog from 'primevue/dialog' // Import Dialog
 import type { FantasyTeam, Player, PlayerRole } from '@/types'
 
 interface RosterSlot {
@@ -144,28 +184,38 @@ export default defineComponent({
   name: 'FantasyTeamCard',
   components: {
     Card,
-    Button
+    Button,
+    Dialog // Register Dialog
   },
   props: {
-    team: {
-      type: Object as PropType<FantasyTeam>,
-      required: true
-    },
-    size: {
-      type: String as PropType<'full' | 'compact'>,
-      default: 'full'
-    },
-    isAdminView: {
-      type: Boolean,
-      default: false
-    }
+    team: { type: Object as PropType<FantasyTeam>, required: true },
+    size: { type: String as PropType<'full' | 'compact'>, default: 'full' },
+    isAdminView: { type: Boolean, default: false }
   },
   emits: ['remove-player'],
+  data() {
+    return {
+      isRemoveModalVisible: false,
+      playerToRemove: null as Player | null
+    }
+  },
   methods: {
-    getRoleIndicatorClasses(slot: RosterSlot) {
-      if (slot.isReserve) {
-        return 'bg-purple-200 text-purple-800'
+    confirmRemovePlayer(player: Player) {
+      this.playerToRemove = player
+      this.isRemoveModalVisible = true
+    },
+    handleConfirmRemove() {
+      if (this.playerToRemove) {
+        this.$emit('remove-player', {
+          teamId: this.team.id,
+          playerId: this.playerToRemove.id
+        })
       }
+      this.isRemoveModalVisible = false
+      this.playerToRemove = null
+    },
+    getRoleIndicatorClasses(slot: RosterSlot) {
+      if (slot.isReserve) return 'bg-purple-200 text-purple-800'
       switch (slot.role) {
         case 'G': return 'bg-green-200 text-green-800'
         case 'F': return 'bg-yellow-200 text-yellow-800'
@@ -174,44 +224,34 @@ export default defineComponent({
       }
     },
     getRowClasses(slot: RosterSlot) {
-        const baseClasses = 'border-b';
-        if (slot.isReserve) {
-            return `${baseClasses} bg-purple-50 border-purple-100`
-        }
-        switch (slot.role) {
-            case 'G': return `${baseClasses} bg-green-50 border-green-100`
-            case 'F': return `${baseClasses} bg-yellow-50 border-yellow-100`
-            case 'C': return `${baseClasses} bg-red-50 border-red-100`
-            default: return `${baseClasses} bg-gray-50 border-gray-100`
-        }
+      let baseClasses = 'border-b'
+      if (slot.isReserve) return `${baseClasses} bg-purple-50 border-purple-100`
+      switch (slot.role) {
+        case 'G': return `${baseClasses} bg-green-50 border-green-100`
+        case 'F': return `${baseClasses} bg-yellow-50 border-yellow-100`
+        case 'C': return `${baseClasses} bg-red-50 border-red-100`
+        default: return `${baseClasses} bg-gray-50 border-gray-100`
+      }
     }
   },
   computed: {
     creditsLeft(): number {
-      // Corrected: Safely handle potentially undefined price
       const spentCredits = this.team.roster.reduce((total, player) => total + (player.price || 0), 0)
       return this.team.totalCredits - spentCredits
     },
     rosterSlots(): RosterSlot[] {
       const slots: RosterSlot[] = []
-      
-      const addSlots = (role: PlayerRole, count: number, isReserve: boolean) => {
-        const playersInRole = this.team.roster.filter(p => p.position === role && p.isReserve === isReserve);
-        for (let i = 0; i < count; i++) {
-          slots.push({ role, isReserve, player: playersInRole[i] });
+      const structure = { main: { G: 4, F: 4, C: 2 }, reserve: { G: 1, F: 1, C: 1 } }
+      const process = (roles: Record<PlayerRole, number>, isReserve: boolean) => {
+        for (const role of Object.keys(roles) as PlayerRole[]) {
+          const playersInRole = this.team.roster.filter(p => p.position === role && p.isReserve === isReserve)
+          for (let i = 0; i < roles[role]; i++) {
+            slots.push({ role, isReserve, player: playersInRole[i] })
+          }
         }
-      };
-
-      // Add main roster slots
-      addSlots('G', 4, false);
-      addSlots('F', 4, false);
-      addSlots('C', 2, false);
-
-      // Add reserve slots
-      addSlots('G', 1, true);
-      addSlots('F', 1, true);
-      addSlots('C', 1, true);
-      
+      }
+      process(structure.main, false)
+      process(structure.reserve, true)
       return slots
     }
   }
